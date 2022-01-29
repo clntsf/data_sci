@@ -21,48 +21,47 @@ def get_yrman_passpct(fp):
 
     # Combine data by summing based on value of index column
     for yob in yob_unique:
-        total = sum(df.loc[df["Year Of Birth"]==yob, "Total"])
+        rows = df[df["Year Of Birth"]==yob]
+        total = sum(rows["Total"])
         if total >= minnum:
-            passnum = sum(df.loc[df["Year Of Birth"]==yob, "PASS"])
+            passnum = sum(rows["PASS"])
             data.append([fileyear-yob, round(passnum/total * 100, 2)])
-            
+    
     return zip(*data)
 
 def writedata():
     data_years = range(2017,2021)
-    yrs, ages, totals, passpcts = [], [], [], []
+    data = []
     
     for yr in data_years:
         fp = f"{fpstem}/data/source/{yr}-data.xlsx"
         age, passpct = get_yrman_passpct(fp)
+        data += [*zip([str(yr)]*len(age), age, passpct)]
 
-        yrs+=[str(yr)]*len(age); ages += age; passpcts += passpct
-    
-    for age in set(ages):
-        agelist = [a2 for a2 in ages if a2==age]
-        pctlist = [pct for i,pct in enumerate(passpcts) if ages[i] == age]
+    for age in set([n[1] for n in data]):
+        items = [n for n in data if n[1]==age]
+        ages, passpcts = [*zip(*items)][1:]
+        data.append(["AVG", sum(ages)/len(ages), sum(passpcts)/len(passpcts)])
 
-        yrs.append("AVG")
-        ages.append(sum(agelist)/len(agelist))
-        passpcts.append(sum(pctlist)/len(pctlist))
-
-    out = pd.DataFrame({"Data Year": yrs, "Age": ages, "Pass %": passpcts})
+    data = [*zip(*data)]
+    out = pd.DataFrame({"Data Year": data[0], "Age": data[1], "Pass %": data[2]})
     out.to_csv(cleanfp, index=False)
 
+# New plotly graph
 def plotdata():
     df = pd.read_csv(cleanfp)
     df["Data Year"] = [*map(str, df["Data Year"])]
+
     fig = px.line(df, x="Age", y="Pass %", color="Data Year")
     fig.write_html(f"{fpstem}/graphs/output.html")
     fig.show()
 
 if __name__ == "__main__":
-    # writedata()
+    writedata()
     plotdata()
     
-# gonna try using plotly from now on
-
-# # to make the graph of pass pct vs year made
+# Old matplotlib graph
+# to make the graph of pass pct vs year made
 # def yrman_passpct(fpclean):
 #     df = pd.read_excel(fpclean)
 #     passpct = [round(a/b*100,2) for a,b in zip(df["PASS"], df["Total"])]
