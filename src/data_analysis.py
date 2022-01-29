@@ -1,35 +1,75 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
+from plotly import io
 
-original_fp = "data/2020-data.xlsx"
+# Config
 thisyear = 2022
 minnum = 10
+fpstem = __file__[:-17]
+cleanfp = f"{fpstem}/data/clean/yrman-passpct.txt"
 
 # to clean the original sheet
-def clean_sheet(fp):
-    fpout =  f"{__file__[:-17]}/data/{fp[fp.rfind('/'):-5]}-clean.xlsx"
+def get_yrman_passpct(fp):
+
+    # Read filepath into pd.DataFrame and get index column
+    fnindex = fp.rfind("/")
+    fileyear = int(fp[fnindex+1:fnindex+5])
     df = pd.read_excel(fp)
 
     yob_unique = [*set(df["Year Of Birth"])]
-    outdf = pd.DataFrame({"Year Manufactured": yob_unique})
-    badcols = ["Vehicle Make", "Vehicle Model", "Year Of Birth"]
-    cols = [*filter(lambda x: "%" not in x and x not in badcols, df.columns)]
-    for c in cols:
-        outdf[c] = [sum(df.loc[df["Year Of Birth"]==yob, c]) for yob in yob_unique]
-    outdf = outdf[outdf["Total"]>=minnum]
-    outdf.to_excel(fpout, index=False)
+    data = []
 
-# to make the graph of pass pct vs year made
-def yob_passpct(fpclean):
-    df = pd.read_excel(fpclean)
-    passpct = [round(a/b*100,2) for a,b in zip(df["PASS"], df["Total"])]
+    # Combine data by summing based on value of index column
+    for yob in yob_unique:
+        total = sum(df.loc[df["Year Of Birth"]==yob, "Total"])
+        if total >= minnum:
+            passnum = sum(df.loc[df["Year Of Birth"]==yob, "PASS"])
+            data.append([fileyear-yob, round(passnum/total * 100, 2)])
+            
+    return zip(*data)
 
-    plt.plot(df["Year Manufactured"], passpct, 'ro')
-    plt.yticks(range(0,101,10))
-    plt.xlabel("Year Manufactured")
-    plt.ylabel("Pass %")
-    plt.title("Pass % of Cars by Year Manufactured")
-    plt.savefig("img/yrman-passpct")
+def writedata():
+    data_years = range(2017,2021)
+    yrs, ages, totals, passpcts = [], [], [], []
+    
+    for yr in data_years:
+        fp = f"{fpstem}/data/source/{yr}-data.xlsx"
+        age, passpct = get_yrman_passpct(fp)
 
-cfp = "data/2020-data-clean.xlsx"
-yob_passpct(cfp)
+        yrs+=[str(yr)]*len(age); ages += age; passpcts += passpct
+    
+    for age in set(ages):
+        agelist = [a2 for a2 in ages if a2==age]
+        pctlist = [pct for i,pct in enumerate(passpcts) if ages[i] == age]
+
+        yrs.append("AVG")
+        ages.append(sum(agelist)/len(agelist))
+        passpcts.append(sum(pctlist)/len(pctlist))
+
+    out = pd.DataFrame({"Data Year": yrs, "Age": ages, "Pass %": passpcts})
+    out.to_csv(cleanfp, index=False)
+
+def plotdata():
+    df = pd.read_csv(cleanfp)
+    df["Data Year"] = [*map(str, df["Data Year"])]
+    fig = px.line(df, x="Age", y="Pass %", color="Data Year")
+    fig.write_html(f"{fpstem}/graphs/output.html")
+    fig.show()
+
+if __name__ == "__main__":
+    # writedata()
+    plotdata()
+    
+# gonna try using plotly from now on
+
+# # to make the graph of pass pct vs year made
+# def yrman_passpct(fpclean):
+#     df = pd.read_excel(fpclean)
+#     passpct = [round(a/b*100,2) for a,b in zip(df["PASS"], df["Total"])]
+
+#     plt.plot(df["Year Manufactured"], passpct, 'ro')        # Plot the data
+#     plt.yticks(range(0,101,10))                             # Formatting
+#     plt.xlabel("Year Manufactured")
+#     plt.ylabel("Pass %")
+#     plt.title("Pass % of Cars by Year Manufactured")
+#     plt.savefig("img/yrman-passpct")                        # Save as image
