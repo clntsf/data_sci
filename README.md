@@ -2,4 +2,4 @@
 ## _Colin Simon-Fellowes_
 
 ## Table of Contents
-[Output Graph](/graphs/output.html)
+[Output Graph](/src/graphs/output.html)
