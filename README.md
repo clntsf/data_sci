@@ -2,4 +2,4 @@
 ## _Colin Simon-Fellowes_
 
 ## Table of Contents
-[Output Graph](/src/graphs/output.html)
+[Output Graph](https://ctsf1.github.io/data_sci/src/graphs/output.html)
