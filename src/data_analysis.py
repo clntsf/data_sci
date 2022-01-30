@@ -1,10 +1,9 @@
 import pandas as pd
 import plotly.express as px
-from plotly import io
 
 # Config
 thisyear = 2022
-minnum = 10
+minnum = 50
 fpstem = __file__[:-17]
 cleanfp = f"{fpstem}/data/clean/yrman-passpct.txt"
 
@@ -23,41 +22,50 @@ def get_yrman_passpct(fp):
     for yob in yob_unique:
         rows = df[df["Year Of Birth"]==yob]
         total = sum(rows["Total"])
-        if total >= minnum:
-            passnum = sum(rows["PASS"])
-            data.append([fileyear-yob, round(passnum/total * 100, 2)])
+        passnum = sum(rows["PASS"])
+
+        data.append([fileyear-yob, round(passnum/total * 100, 2), total])
     
     return zip(*data)
 
 def writedata():
-    data_years = range(2017,2021)
+    data_years = range(2013,2021)
     data = []
     
     for yr in data_years:
         fp = f"{fpstem}/data/source/{yr}-data.xlsx"
-        age, passpct = get_yrman_passpct(fp)
-        data += [*zip([str(yr)]*len(age), age, passpct)]
+        age, passpct, total = get_yrman_passpct(fp)
+        data += [*zip([str(yr)]*len(age), age, passpct, total)]
 
-    for age in set([n[1] for n in data]):
-        items = [n for n in data if n[1]==age]
-        ages, passpcts = [*zip(*items)][1:]
-        data.append(["AVG", sum(ages)/len(ages), sum(passpcts)/len(passpcts)])
-
-    data = [*zip(*data)]
-    out = pd.DataFrame({"Data Year": data[0], "Age": data[1], "Pass %": data[2]})
-    out.to_csv(cleanfp, index=False)
+    data = pd.DataFrame(data, columns=["Data Year", "Age", "Pass %", "Total"])
+    data.to_csv(cleanfp, index=False)
 
 # New plotly graph
 def plotdata():
     df = pd.read_csv(cleanfp)
+    df = df[df["Total"]>=minnum]
     df["Data Year"] = [*map(str, df["Data Year"])]
 
-    fig = px.line(df, x="Age", y="Pass %", color="Data Year")
+    avg = []
+    ages = [*set(df["Age"])]
+    for age in ages:
+        rows = df[df["Age"]==age]
+        numtotal = max(rows["Total"])
+
+        if numtotal>= minnum:
+            rlen = len(rows.index)
+            age_avg, pass_avg = sum(rows["Age"])/rlen, sum(rows["Pass %"])/rlen
+            avg += [["AVG", age_avg, pass_avg, numtotal]]
+
+    avg = pd.DataFrame(avg, columns=["Data Year", "Age", "Pass %", "Total"])
+    df = pd.concat([df, avg], ignore_index=True)
+
+    fig = px.line(df, x="Age", y="Pass %", color="Data Year", markers=True, symbol="Data Year", hover_data=["Total"])
     fig.write_html(f"{fpstem}/graphs/output.html")
     fig.show()
 
 if __name__ == "__main__":
-    writedata()
+    # writedata()
     plotdata()
     
 # Old matplotlib graph
