@@ -53,4 +53,5 @@ Below is a labelled version of the 'AVG' series from the graph. Highlighted are 
 
  - **Blue**: This region was the most interesting and unintuitive of them all. Contrary to my initial hypothesis of condition decreasing with age, the vehicles in this age range (20+) actually gradually improved in condition overall.  
  My theory for this is that many of these vehicles are considered 'vintage cars', and are thus specifically bought and maintained for their older look/feel, resulting in a higher average road safety. It should be noted that these vehicles still had nowhere near the pass percentage of new vehicles, but their deviance from the trend was still very interesting to me
+ 
  - **Purple**: This region is just a footnote explaining the volatility at the right end of this graph. as very few vehicles at these ages actually operate, the sample size for this area is quite low, which accounts for the level of volatility.
