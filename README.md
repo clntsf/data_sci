@@ -41,3 +41,16 @@ I then read the data from my cleaned dataset, and for each year plotted a differ
 This graph was saved as an HTML file, and can be viewed [here](https://ctsf1.github.io/data_sci/src/graphs/output.html)
 
 ### 1.4 Interpreting the Data
+
+Below is a labelled version of the 'AVG' series from the graph. Highlighted are regions I think contain interesting or valuable information about this relationship
+![img](/src/graphs/output_analysis.png)
+
+#### Categories:
+ - **Red**: This region shows that cars, regardless of year of manufacture, generally decrease in condition in their first three years of life, but spike back up almost to their initial values by the following year.  
+ This pattern suggests that vehicles likely have their first significant repair done in their third year of use, a tendency that wouldn't be obvious from looking at the dataset alone.
+
+ - **Green**: This region, between years 10 and 18, shows the highest level of disrepair present in the dataset. This is likely the age of replacement of many vehicles as they fall into such bad condition that owners deem it less expensive simply to replace them with a new, cheaper vehicle with lower maintenance costs.
+
+ - **Blue**: This region was the most interesting and unintuitive of them all. Contrary to my initial hypothesis of condition decreasing with age, the vehicles in this age range (20+) actually gradually improved in condition overall.  
+ My theory for this is that many of these vehicles are considered 'vintage cars', and are thus specifically bought and maintained for their older look/feel, resulting in a higher average road safety. It should be noted that these vehicles still had nowhere near the pass percentage of new vehicles, but their deviance from the trend was still very interesting to me
+ - **Purple**: This region is just a footnote explaining the volatility at the right end of this graph. as very few vehicles at these ages actually operate, the sample size for this area is quite low, which accounts for the level of volatility.
