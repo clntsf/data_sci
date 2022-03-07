@@ -29,23 +29,29 @@ def get_yrman_passpct(fp):
     return zip(*data)
 
 def writedata():
+    # config
     data_years = range(2013,2021)
     data = []
     
+    # get year data and reformat it
     for yr in data_years:
         fp = f"{fpstem}/data/source/{yr}-data.xlsx"
         age, passpct, total = get_yrman_passpct(fp)
         data += [*zip([str(yr)]*len(age), age, passpct, total)]
 
+    # write to file
     data = pd.DataFrame(data, columns=["Data Year", "Age", "Pass %", "Total"])
     data.to_csv(cleanfp, index=False)
 
 # New plotly graph
 def plotdata():
+
+    # get data from file
     df = pd.read_csv(cleanfp)
     df = df[df["Total"]>=minnum]
     df["Data Year"] = [*map(str, df["Data Year"])]
 
+    # get average series
     avg = []
     ages = [*set(df["Age"])]
     for age in ages:
@@ -58,8 +64,9 @@ def plotdata():
             avg += [["AVG", age_avg, pass_avg, numtotal]]
 
     avg = pd.DataFrame(avg, columns=["Data Year", "Age", "Pass %", "Total"])
-    df = pd.concat([df, avg], ignore_index=True)
+    df = pd.concat([df, avg], ignore_index=True)                                # add avg series to main data
 
+    # plot the data with the avg series
     fig = px.line(df, x="Age", y="Pass %", color="Data Year", markers=True, symbol="Data Year", hover_data=["Total"])
     fig.write_html(f"{fpstem}/graphs/output.html")
     fig.show()
