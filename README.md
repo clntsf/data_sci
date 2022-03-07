@@ -22,7 +22,7 @@ My initial hypothesis was relatively simple - that the age of a car is inversely
 
 ### 1.2 Cleaning the Dataset
 
-To clean the dataset I decided to write a [function](/src/data_analysis.py) (see *get_yrman_passpct()*) to take in a valid .xlsx file and aggregate its rows by year manufactured, returning a list of years manufactured, test pass percentage, and total vehicles.
+To clean the dataset I decided to write a [function](https://raw.githubusercontent.com/ctsf1/data_sci/master/src/data_analysis.py) (see *get_yrman_passpct()*) to take in a valid .xlsx file and aggregate its rows by year manufactured, returning a list of years manufactured, test pass percentage, and total vehicles.
 
 I ran this function on all of the files (data from 2013-2020) and for each subtracted the year in which the data was taken to get the ages of the vehicles, and finally combinined them all into a
 [.csv file](/src/data/clean/yrman-passpct.txt)
